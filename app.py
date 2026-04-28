@@ -1098,6 +1098,22 @@ def exportar_csv():
         mimetype="text/csv",
         headers={"Content-Disposition": f"attachment;filename=historial_isae_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"}
     )
+@app.route("/borrar-hasta")
+def borrar_hasta():
+    """Borrar registros hasta una fecha específica"""
+    fecha = request.args.get("fecha")  # formato: 2026-04-20
+    
+    if not fecha:
+        return "Usar: /borrar-hasta?fecha=2026-04-20"
+    
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute("DELETE FROM historial WHERE DATE(fecha) <= ?", (fecha,))
+    eliminados = c.rowcount
+    conn.commit()
+    conn.close()
+    
+    return f"✅ Borrados {eliminados} registros hasta {fecha}"
 
 # Inicializar base de datos
 init_db()
